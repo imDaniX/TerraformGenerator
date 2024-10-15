@@ -1,7 +1,7 @@
 package org.terraform.main;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -93,30 +93,27 @@ public class TerraformGeneratorPlugin extends JavaPlugin implements Listener {
         BiomeBank.initSinglesConfig(); // Initiates single biome modes.
 
         // Initialize chunk cache based on config size
-        TerraformGenerator.CHUNK_CACHE = CacheBuilder.newBuilder()
+        TerraformGenerator.CHUNK_CACHE = Caffeine.newBuilder()
                                                      .maximumSize(TConfig.c.DEVSTUFF_CHUNKCACHE_SIZE)
                                                      .build(new ChunkCacheLoader());
 
         // Initialize biome query cache based on config size
-        GenUtils.biomeQueryCache = CacheBuilder.newBuilder()
-                                               .maximumSize(TConfig.c.DEVSTUFF_CHUNKBIOMES_SIZE)
-                                               .build(new CacheLoader<>() {
-                                                   @Override
-                                                   public @NotNull EnumSet<BiomeBank> load(@NotNull ChunkCache key) {
-                                                       EnumSet<BiomeBank> banks = EnumSet.noneOf(BiomeBank.class);
-                                                       int gridX = key.chunkX * 16;
-                                                       int gridZ = key.chunkZ * 16;
-                                                       for (int x = gridX; x < gridX + 16; x++) {
-                                                           for (int z = gridZ; z < gridZ + 16; z++) {
-                                                               BiomeBank bank = key.tw.getBiomeBank(x, z);
-                                                               if (!banks.contains(bank)) {
-                                                                   banks.add(bank);
-                                                               }
-                                                           }
-                                                       }
-                                                       return banks;
+        GenUtils.biomeQueryCache = Caffeine.newBuilder()
+                                           .maximumSize(TConfig.c.DEVSTUFF_CHUNKBIOMES_SIZE)
+                                           .build(key -> {
+                                               EnumSet<BiomeBank> banks = EnumSet.noneOf(BiomeBank.class);
+                                               int gridX = key.chunkX * 16;
+                                               int gridZ = key.chunkZ * 16;
+
+                                               // Проходим по каждому блоку чанка (16x16)
+                                               for (int x = gridX; x < gridX + 16; x++) {
+                                                   for (int z = gridZ; z < gridZ + 16; z++) {
+                                                       BiomeBank bank = key.tw.getBiomeBank(x, z);
+                                                       banks.add(bank);  // EnumSet автоматически игнорирует дубликаты
                                                    }
-                                               });
+                                               }
+                                               return banks;
+                                           });
 
         LangOpt.init(this);
         watchdogSuppressant = new TfgWatchdogSuppressant();

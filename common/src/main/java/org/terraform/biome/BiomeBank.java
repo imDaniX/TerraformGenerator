@@ -1,7 +1,7 @@
 package org.terraform.biome;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.terraform.biome.beach.*;
@@ -343,11 +343,11 @@ public enum BiomeBank {
             }
         }
     }};
-    private static final LoadingCache<BiomeSection, BiomeSection> BIOMESECTION_CACHE = CacheBuilder.newBuilder()
-                                                                                                   .maximumSize(250)
-                                                                                                   .build(new BiomeSectionCacheLoader());
+    private static final LoadingCache<BiomeSection, BiomeSection> BIOMESECTION_CACHE = Caffeine.newBuilder()
+                                                                                               .maximumSize(250)
+                                                                                               .build(new BiomeSectionCacheLoader());
     // This is the most taxing calculation. Have a bigger cache.
-    private static final LoadingCache<TWSimpleLocation, BiomeBank> HEIGHTINDEPENDENTBIOME_CACHE = CacheBuilder.newBuilder()
+    private static final LoadingCache<TWSimpleLocation, BiomeBank> HEIGHTINDEPENDENTBIOME_CACHE = Caffeine.newBuilder()
                                                                                                               .maximumSize(
                                                                                                                       500)
                                                                                                               .build(new HeightIndependentBiomeCacheLoader());
@@ -411,11 +411,11 @@ public enum BiomeBank {
      * @param x Block X
      * @param z Block Z
      */
-    public static @NotNull BiomeSection getBiomeSectionFromBlockCoords(TerraformWorld tw, int x, int z) {
+    public static BiomeSection getBiomeSectionFromBlockCoords(TerraformWorld tw, int x, int z) {
         BiomeSection sect = new BiomeSection(tw, x, z);
         //		sect.doCalculations();
         try {
-            sect = BIOMESECTION_CACHE.getUnchecked(sect);
+            sect = BIOMESECTION_CACHE.getIfPresent(sect);
         }
         catch (Throwable e) {
             TerraformGeneratorPlugin.logger.stackTrace(e);
@@ -429,11 +429,11 @@ public enum BiomeBank {
      *
      * @return the biome section that this chunk belongs to.
      */
-    public static @NotNull BiomeSection getBiomeSectionFromChunk(TerraformWorld tw, int chunkX, int chunkZ) {
+    public static BiomeSection getBiomeSectionFromChunk(TerraformWorld tw, int chunkX, int chunkZ) {
         BiomeSection sect = new BiomeSection(tw, chunkX << 4, chunkZ << 4);
         //		sect.doCalculations();
         try {
-            sect = BIOMESECTION_CACHE.getUnchecked(sect);
+            sect = BIOMESECTION_CACHE.getIfPresent(sect);
         }
         catch (Throwable e) {
             TerraformGeneratorPlugin.logger.stackTrace(e);
@@ -442,7 +442,7 @@ public enum BiomeBank {
         return sect;
     }
 
-    public static @NotNull BiomeSection getBiomeSectionFromSectionCoords(TerraformWorld tw,
+    public static BiomeSection getBiomeSectionFromSectionCoords(TerraformWorld tw,
                                                                          int x,
                                                                          int z,
                                                                          boolean useSectionCoords)
@@ -450,7 +450,7 @@ public enum BiomeBank {
         BiomeSection sect = new BiomeSection(tw, x, z, useSectionCoords);
         //		sect.doCalculations();
         try {
-            sect = BIOMESECTION_CACHE.getUnchecked(sect);
+            sect = BIOMESECTION_CACHE.getIfPresent(sect);
         }
         catch (Throwable e) {
             TerraformGeneratorPlugin.logger.stackTrace(e);
@@ -591,11 +591,11 @@ public enum BiomeBank {
      *
      * @return a biome type
      */
-    public static @NotNull BiomeBank calculateHeightIndependentBiome(TerraformWorld tw, int x, int z) {
+    public static BiomeBank calculateHeightIndependentBiome(TerraformWorld tw, int x, int z) {
         TWSimpleLocation loc = new TWSimpleLocation(tw, x, 0, z);
         BiomeBank bank;
         try {
-            bank = HEIGHTINDEPENDENTBIOME_CACHE.getUnchecked(loc);
+            bank = HEIGHTINDEPENDENTBIOME_CACHE.getIfPresent(loc);
         }
         catch (Throwable e) {
             TerraformGeneratorPlugin.logger.stackTrace(e);

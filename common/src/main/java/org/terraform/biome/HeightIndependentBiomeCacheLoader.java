@@ -1,12 +1,12 @@
 package org.terraform.biome;
 
-import com.google.common.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.CacheLoader;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.terraform.data.TWSimpleLocation;
 import org.terraform.data.TerraformWorld;
 
-public class HeightIndependentBiomeCacheLoader extends CacheLoader<TWSimpleLocation, BiomeBank> {
+public class HeightIndependentBiomeCacheLoader implements CacheLoader<TWSimpleLocation, BiomeBank> {
 
     @Override
     public @Nullable BiomeBank load(@NotNull TWSimpleLocation loc) {

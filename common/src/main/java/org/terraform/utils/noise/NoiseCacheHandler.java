@@ -1,8 +1,8 @@
 package org.terraform.utils.noise;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.terraform.data.TerraformWorld;
@@ -15,10 +15,10 @@ import java.util.function.Function;
  */
 public class NoiseCacheHandler {
 
-    private static final LoadingCache<NoiseCacheHandler.NoiseCacheKey, FastNoise> NOISE_CACHE = CacheBuilder.newBuilder()
-                                                                                                            .maximumSize(
+    private static final LoadingCache<NoiseCacheHandler.NoiseCacheKey, FastNoise> NOISE_CACHE = Caffeine.newBuilder()
+                                                                                                        .maximumSize(
                                                                                                                     300)
-                                                                                                            .build(new NoiseCacheLoader());
+                                                                                                        .build(new NoiseCacheLoader());
 
     public static @NotNull FastNoise getNoise(TerraformWorld world,
                                               NoiseCacheEntry entry,
@@ -124,7 +124,7 @@ public class NoiseCacheHandler {
         FRACTALTREES_BASE_NOISE,
     }
 
-    public static class NoiseCacheLoader extends CacheLoader<NoiseCacheHandler.NoiseCacheKey, FastNoise> {
+    public static class NoiseCacheLoader implements CacheLoader<NoiseCacheKey, FastNoise> {
         /**
          * Does not do loading.
          * If this is null, the caller is responsible for inserting it.

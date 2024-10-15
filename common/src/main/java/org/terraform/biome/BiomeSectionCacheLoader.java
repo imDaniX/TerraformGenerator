@@ -1,10 +1,10 @@
 package org.terraform.biome;
 
 
-import com.google.common.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.CacheLoader;
 import org.jetbrains.annotations.NotNull;
 
-public class BiomeSectionCacheLoader extends CacheLoader<BiomeSection, BiomeSection> {
+public class BiomeSectionCacheLoader implements CacheLoader<BiomeSection, BiomeSection> {
 
     @Override
     public @NotNull BiomeSection load(@NotNull BiomeSection key) {

@@ -1,6 +1,6 @@
 package org.terraform.coregen.bukkit;
 
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -23,7 +23,6 @@ import org.terraform.utils.GenUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
 
 public class TerraformGenerator extends ChunkGenerator {
     public static final List<SimpleChunkLocation> preWorldInitGen = new ArrayList<>();
@@ -47,7 +46,7 @@ public class TerraformGenerator extends ChunkGenerator {
         try {
             return CHUNK_CACHE.get(cache);
         }
-        catch (ExecutionException e) {
+        catch (Exception e) {
             TerraformGeneratorPlugin.logger.stackTrace(e);
             TerraformGeneratorPlugin.logger.stackTrace(e.getCause());
             cache.initInternalCache();

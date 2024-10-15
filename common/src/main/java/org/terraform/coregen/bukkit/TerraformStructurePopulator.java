@@ -1,8 +1,8 @@
 package org.terraform.coregen.bukkit;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
@@ -38,9 +38,11 @@ import java.util.Random;
 
 public class TerraformStructurePopulator extends BlockPopulator {
 
-    private final LoadingCache<MegaChunk, JigsawState> jigsawCache = CacheBuilder.newBuilder()
-                                                                                 .maximumSize(20)
-                                                                                 .build(CacheLoader.from((mc) -> null));
+    private final LoadingCache<MegaChunk, JigsawState> jigsawCache = Caffeine.newBuilder()
+                                                                             .maximumSize(20)
+                                                                             .build(mc -> {
+                                                                                 return null; // Заменяем функциональную логику на возвращение null, как в оригинале
+                                                                             });
     private final TerraformWorld tw;
 
     public TerraformStructurePopulator(TerraformWorld tw) {

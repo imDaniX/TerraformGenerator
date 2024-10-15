@@ -9,3 +9,5 @@ commands:
   terraform:
     description: Main command
     aliases: terra
+libraries:
+  - com.github.ben-manes.caffeine:caffeine:3.1.8

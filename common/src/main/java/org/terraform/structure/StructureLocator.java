@@ -4,21 +4,21 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.jetbrains.annotations.NotNull;
 import org.terraform.biome.BiomeBank;
 import org.terraform.data.MegaChunk;
 import org.terraform.data.TerraformWorld;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.github.benmanes.caffeine.cache.CacheLoader;
+import com.github.benmanes.caffeine.cache.LoadingCache;
 import org.terraform.main.config.TConfig;
 
 public class StructureLocator {
 
     private static final int[] TIMEDOUT = new int[] {-7, 13};
-    private static final LoadingCache<StructureLocatorKey, int[]> STRUCTURELOCATION_CACHE = CacheBuilder.newBuilder()
-                                                                                                        .maximumSize(300)
-                                                                                                        .build(new StructureLocatorCacheLoader());
+    private static final LoadingCache<StructureLocatorKey, int[]> STRUCTURELOCATION_CACHE = Caffeine.newBuilder()
+                                                                                                    .maximumSize(300)
+                                                                                                    .build(new StructureLocatorCacheLoader());
 
     public static int[] locateMultiMegaChunkStructure(TerraformWorld tw,
                                                       @NotNull MegaChunk center,
@@ -231,7 +231,7 @@ public class StructureLocator {
         return candidates;
     }
 
-    public static class StructureLocatorCacheLoader extends CacheLoader<StructureLocatorKey, int[]> {
+    public static class StructureLocatorCacheLoader implements CacheLoader<StructureLocatorKey, int[]> {
         /**
          * Does not do loading.
          * If this is null, the caller is responsible for inserting it.
