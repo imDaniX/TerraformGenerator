@@ -124,7 +124,7 @@ public class GenUtils {
 
     public static @NotNull EnumSet<BiomeBank> getBiomesInChunk(TerraformWorld tw, int chunkX, int chunkZ) {
         ChunkCache key = new ChunkCache(tw, chunkX, chunkZ);
-        return biomeQueryCache.getUnchecked(key);
+        return biomeQueryCache.getIfPresent(key);
     }
 
     /**
