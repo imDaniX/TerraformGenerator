@@ -39,4 +39,4 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: TGen
-          path: build/libs/*.jar
+          path: buildProj/build/libs/*.jar
